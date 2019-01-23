@@ -51,10 +51,10 @@ android {
     buildToolsVersion "28.0.3"
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 14
         targetSdkVersion 28
         versionCode 20000
-        versionName '2.0.0'
+        versionName "$libraryVersion"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -68,13 +68,21 @@ android {
 
 }
 
+dokka {
+    outputFormat = 'html'
+    outputDirectory = "$buildDir/javadoc"
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
-    testImplementation "junit:junit:4.12"
-    testImplementation "org.robolectric:robolectric:4.0"
+    testImplementation "junit:junit:$junit"
+    testImplementation "org.robolectric:robolectric:$roboelectric"
 }
+
+apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
+apply from: 'bintrayv1.gradle'
 
 repositories {
     jcenter()
