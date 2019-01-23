@@ -1,3 +1,5 @@
+(STILL UNDER CONSTRUCTION)
+
 This is the next generation of <a href="https://github.com/bukalapak/url-router">URL Router</a>
 
 # Neuro
@@ -40,7 +42,7 @@ NeuroNetwork.proceed(url)
 Add this line in your `build.gradle` file:
 
 ```
-implementation 'com.mrhabibi:neuro:2.0.0'
+implementation '...'
 ```
 
 This library is hosted in the [JCenter repository](https://bintray.com/bukalapak/maven), so you have to ensure that the repository is included:
