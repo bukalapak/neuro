@@ -1,10 +1,9 @@
-(STILL UNDER CONSTRUCTION)
+# (README IS STILL UNDER CONSTRUCTION)
 
 This is the next generation of <a href="https://github.com/bukalapak/url-router">URL Router</a>
 
 # Neuro
 A wrapper for easily routing URL on Android
-
 
 ### Usage
 
