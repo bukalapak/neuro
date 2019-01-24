@@ -14,7 +14,7 @@ A wrapper for easily routing URL on Android
 You need this if you have only 1 domain to be processed.
 
 ```kotlin
-SimpleNeuro.setBaseUrl(Uri.parse("https://www.mywebsite.com"))
+SimpleNeuro.setBase(Uri.parse("https://www.mywebsite.com"))
 
 // https://www.mywebsite.com/login
 SimpleNeuro.addPath("/login") {
@@ -29,7 +29,7 @@ SimpleNeuro.addPath("/messages/<message_id>") {
 
 // https://www.mywebsite.com/promo?source=banner
 SimpleNeuro.addPath("/promo") {
-   val messageId = it.queries.optString("source")
+   val source = it.queries.optString("source")
    // open promo with source `banner`
 }
 ```

@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentSkipListMap
 import java.util.concurrent.ConcurrentSkipListSet
 import java.util.regex.Pattern
 
-class NeuroNetwork {
+class Neuro {
 
     internal val neurons = ConcurrentSkipListMap<Nucleus, AxonTerminal>()
     var preprocessor: AxonPreprocessor? = null
@@ -253,6 +253,6 @@ class NeuroNetwork {
     }
 
     companion object {
-        const val TAG = "NeuroNetwork"
+        const val TAG = "Neuro"
     }
 }

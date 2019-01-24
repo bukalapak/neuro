@@ -6,13 +6,13 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class NeuroNetworkRT {
+class NeuroRT {
 
     @Test
     fun all_test() {
         val url = "https://www.bukalapak.com/bbbb/bbbb/aaa?key=value#section1"
 
-        val network = NeuroNetwork()
+        val network = Neuro()
         val soma1 = object : Soma("dfg") {
             override val hosts = listOf("<subdomain>.bukalapak.com")
 
