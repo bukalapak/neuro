@@ -1,5 +1,7 @@
 # (README IS STILL UNDER CONSTRUCTION)
 
+[ ![Download](https://api.bintray.com/packages/mrhabibi/maven/neuro/images/download.svg) ](https://bintray.com/mrhabibi/maven/neuro/_latestVersion)
+
 This is the next generation of <a href="https://github.com/bukalapak/url-router">URL Router</a> with cleaner code and improved performance up to 3000% faster that previous version, support modularization, easier to use, and many other benefits!
 
 ## Biological Anatomy
@@ -179,7 +181,7 @@ Used to define `scheme`, `host`, and `path`.
 Add this line in your `build.gradle` file:
 
 ```
-implementation '...neuro:2.0.0'
+implementation 'com.mrhabibi:neuro:$version'
 ```
 
 This library is hosted in the [JCenter repository](https://bintray.com/mrhabibi/maven), so you have to ensure that the repository is included:
@@ -199,8 +201,8 @@ Feel free to create issues and pull requests.
 ## License
 
 ```
-URL Router library for Android
-Copyright (c) 2018 Bukalapak (http://github.com/bukalapak).
+Neuro library for Android
+Copyright (c) 2018 mrhabibi (http://github.com/bukalapak).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
