@@ -1,8 +1,6 @@
-# (README IS STILL UNDER CONSTRUCTION)
+# Neuro
 
-[ ![Download](https://api.bintray.com/packages/mrhabibi/maven/neuro/images/download.svg) ](https://bintray.com/mrhabibi/maven/neuro/_latestVersion)
-
-This is the next generation of <a href="https://github.com/bukalapak/url-router">URL Router</a> with cleaner code and improved performance up to 3000% faster that previous version, support modularization, easier to use, and many other benefits!
+The next generation of <a href="https://github.com/bukalapak/url-router">URL Router</a> with cleaner code and improved performance up to 3000% faster that previous version, support modularization, easier to use, and many other benefits!
 
 ## Biological Anatomy
 
@@ -177,6 +175,8 @@ Used to define `scheme`, `host`, and `path`.
 ## Installation
 
 ### Gradle
+
+[ ![Download](https://api.bintray.com/packages/mrhabibi/maven/neuro/images/download.svg) ](https://bintray.com/mrhabibi/maven/neuro/_latestVersion)
 
 Add this line in your `build.gradle` file:
 
