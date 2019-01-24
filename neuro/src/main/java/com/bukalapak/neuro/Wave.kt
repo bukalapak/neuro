@@ -53,6 +53,7 @@ open class Wave : HashMap<String, List<String>>() {
     } else null
 }
 
+@Suppress("DEPRECATION")
 open class OptWave : Wave() {
 
     fun optString(key: String): String = if (containsKey(key)) {
@@ -97,6 +98,7 @@ open class OptWave : Wave() {
     } else false
 }
 
+@Suppress("DEPRECATION")
 open class Waves : OptWave() {
 
     fun getStringList(key: String): List<String>? = if (containsKey(key)) {
