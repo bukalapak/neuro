@@ -1,6 +1,6 @@
 # (README IS STILL UNDER CONSTRUCTION)
 
-This is the next generation of <a href="https://github.com/bukalapak/url-router">URL Router</a> with cleaner code and imrpoved performce up to 3000% faster that previous version, support modularization, easier to use, and many other benefits!
+This is the next generation of <a href="https://github.com/bukalapak/url-router">URL Router</a> with cleaner code and improved performance up to 3000% faster that previous version, support modularization, easier to use, and many other benefits!
 
 ## Biological Anatomy
 

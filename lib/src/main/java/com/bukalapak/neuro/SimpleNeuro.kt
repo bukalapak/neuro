@@ -5,7 +5,7 @@ import android.net.Uri
 
 object SimpleNeuro {
 
-    const val ID = "simple"
+    private const val ID = "simple"
 
     private var soma: Soma? = null
 
