@@ -7,7 +7,6 @@ object SimpleNeuro {
 
     const val ID = "simple"
 
-    private val neuro = Neuro()
     private var soma: Soma? = null
 
     fun setBase(uri: Uri) {
@@ -20,11 +19,11 @@ object SimpleNeuro {
 
     fun addPath(expression: String, action: SignalAction) {
         val soma = soma ?: throw IllegalStateException("You must call SimpleNeuro.setBase(Uri) first.")
-        neuro.connect(soma, AxonBranch(expression, action))
+        Neuro.connect(soma, AxonBranch(expression, action))
     }
 
     fun proceed(url: String, context: Context? = null) {
-        neuro.proceed(url, context)
+        Neuro.proceed(url, context)
     }
 
 }
