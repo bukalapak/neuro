@@ -5,11 +5,44 @@ This is the next generation of <a href="https://github.com/bukalapak/url-router"
 # Neuro
 A wrapper for easily routing URL on Android
 
-### Usage
+## Biological Anatomy
+
+![Neuro Anatomy](https://github.com/bukalapak/neuro/blob/master/images/neuron_anatomy.jpg)
+
+## Simple Routing 
+
+You need this if you have only 1 domain to be processed.
+
+```kotlin
+SimpleNeuro.setBaseUrl(Uri.parse("https://www.mywebsite.com"))
+
+// https://www.mywebsite.com/login
+SimpleNeuro.addPath("/login") {
+   // goto login
+}
+
+// https://www.mywebsite.com/messages/1234
+SimpleNeuro.addPath("/messages/<message_id>") {
+   val messageId = it.variables.optString("message_id")
+   // open message with id 1234
+}
+
+// https://www.mywebsite.com/promo?source=banner
+SimpleNeuro.addPath("/promo") {
+   val messageId = it.queries.optString("source")
+   // open promo with source `banner`
+}
+```
 
 ```kotlin
 NeuroNetwork.proceed(url)
 ```
+
+## Advanced Routing
+
+You need this if your routing is super complex
+
+// blablabla
 
 ### Language
 
@@ -44,7 +77,7 @@ Add this line in your `build.gradle` file:
 implementation '...'
 ```
 
-This library is hosted in the [JCenter repository](https://bintray.com/bukalapak/maven), so you have to ensure that the repository is included:
+This library is hosted in the [JCenter repository](https://bintray.com/mrhabibi/maven), so you have to ensure that the repository is included:
 
 ```
 buildscript {
