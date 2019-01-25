@@ -1,6 +1,6 @@
 # Neuro
 
-The next generation of <a href="https://github.com/bukalapak/url-router">URL Router</a> with cleaner code and improved performance up to 3000% faster that previous version, support modularization, easier to use, and many other benefits!
+The next generation of <a href="https://github.com/bukalapak/url-router">URL Router</a> with cleaner code and improved performance up to 3000% faster than previous version, support modularization, easier to use, and many other benefits!
 
 ## Biological Anatomy
 
@@ -92,7 +92,7 @@ object MyOtherWebsiteSoma : SomaOnly("my_other_website) {
 3. `SomaFallback`: This is a fallback when there is no match for other defined Somas, only single instance is allowed.
 
 ```kotlin
-object OthersSoma : SomaFallback() {
+object OtherSoma : SomaFallback() {
   
    override fun onSomaProcess(signal: Signal) {
       // process URL
@@ -112,6 +112,7 @@ Register all paths in your `MainActivity`, or even better in subclass of `Applic
 
 ```kotlin
 override fun onCreate() {
+
    Neuro.connect(MyWebsiteSoma, AxonBranch("/login") {
       // goto login
    })
@@ -127,9 +128,7 @@ override fun onCreate() {
    }
    
    // for SomaOnly and SomaFallback
-   
    Neuro.connect(MyOtherWebsiteSoma)
-   
    Neuro.connect(OtherSoma)
 
 }
@@ -181,7 +180,7 @@ Used to define `scheme`, `host`, and `path`.
 Add this line in your `build.gradle` file:
 
 ```
-implementation 'com.mrhabibi:neuro:$version'
+implementation 'com.mrhabibi:neuro:$latestVersion'
 ```
 
 This library is hosted in the [JCenter repository](https://bintray.com/mrhabibi/maven), so you have to ensure that the repository is included:
