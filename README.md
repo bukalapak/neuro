@@ -55,7 +55,7 @@ object MyWebsiteSoma : Soma("my_website") {
    val schemes = listOf("https")
    val hosts = listOf("www.mywebsite.com", "m.mywebsite.com")
    
-   override fun onSomaProcess(signal: Signal) {
+   override fun onSomaProcess(signal: Signal) : Boolean {
       // preprocess URL here
       // return false/super if you need to forward process to branch
       // return true if you want to stop processing
