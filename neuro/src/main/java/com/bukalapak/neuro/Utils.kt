@@ -10,28 +10,34 @@ typealias AxonProcessor = (SignalAction, Signal) -> Unit
 typealias NeuronRoute = Pair<Nucleus.Chosen, AxonBranch?>?
 typealias AxonTerminal = ConcurrentSkipListMap<Int, ConcurrentSkipListSet<AxonBranch>>
 
-const val VARIABLE_REGEX = "<(\\w+)(:([^>]+))?>"
-private const val DEFAULT_VARIABLE_REGEX = "[^\\/]+"
+private const val COMMON_PATTERN = "[^\\/]+"
 
-// TODO: remove extraBackslash if dynamic deeplink test has passed
-internal fun String.toPattern(extraBackslash: Boolean = false): String {
+val ANONYMOUS_REGEX = "<>".toRegex()
+val UNPATTERNED_REGEX = "<\\w+>".toRegex()
+val PATTERNED_REGEX = "<\\w+:[^>]+>".toRegex()
+
+const val VARIABLE_ABLE_PATTERN = "<(\\w+)(:([^>]+))?>"
+
+internal fun String.toPattern(): String {
 
     var regex = this
 
-    if (extraBackslash) {
-        regex = regex.replace("\\", "\\\\")
-    }
+    // add extra backslash
+    regex = regex.replace("\\", "\\\\")
 
-    regex = regex
-            .replace("\\.".toRegex(), "\\\\.") // literally dot
-            .replace("\\*".toRegex(), ".+") // wildcard
-            .replace("<\\w+>".toRegex(), "($DEFAULT_VARIABLE_REGEX)") // variable with no specific regex
+    // literally dot
+    regex = regex.replace("\\.".toRegex(), "\\\\.")
 
-    val varRegexMatcher = Pattern.compile(VARIABLE_REGEX).matcher(regex)
+    // unspecified regex
+    regex = regex.replace(ANONYMOUS_REGEX, COMMON_PATTERN)
 
-    // sanitize variable in expression with specific regex
+    // variable with no specific regex
+    regex = regex.replace("<\\w+>".toRegex(), "($COMMON_PATTERN)")
+
+    // variable with specific regex
+    val varRegexMatcher = Pattern.compile(VARIABLE_ABLE_PATTERN).matcher(regex)
     while (varRegexMatcher.find()) {
-        regex = regex.replaceFirst(VARIABLE_REGEX.toRegex(), "(${varRegexMatcher.group(3)})")
+        regex = regex.replaceFirst(VARIABLE_ABLE_PATTERN.toRegex(), "(${varRegexMatcher.group(3)})")
     }
 
     return regex

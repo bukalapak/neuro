@@ -120,12 +120,12 @@ override fun onCreate() {
    Neuro.connect(MyWebsiteSoma, AxonBranch("/messages/<message_id>") {
       val messageId = it.variables.optString("message_id")
       // open message with id 1234
-   }
+   })
 
    Neuro.connect(MyWebsiteSoma, AxonBranch("/promo") {
       val source = it.queries.optString("source")
       // open promo with source `banner`
-   }
+   })
    
    // for SomaOnly and SomaFallback
    Neuro.connect(MyOtherWebsiteSoma)
@@ -146,30 +146,25 @@ override fun onCreate() {
 8. Expression for `scheme`, `host`, and `path` is highly configurable.
 9. May use `getString()` for nullability or `optString()` for nonnullability.
 
-## Expression language
+## Variable types
 
-Used to define `scheme`, `host`, and `path`.
+Used to take part of `scheme`, `host`, or `path` of URL. This language may not work properly in `SimpleNeuro`. You may take variable value using `Signal.variables.getString(String)` or any other provided types.
 
-### Wildcard : `*`
-- Can be placed anywhere except query
-- Used for replacing any character inside URL
-- Regex: `.+` -> Any character more than 1
+### Anonymous variable : `<>`
+- Used for replacing any character except `/`
+- If you need to replace any character including `/`, you may use patterned variable
+- Regex: `[^/]+` -> Any character more than 1 except `/`
 
-### Variable Name : `<variable_name>`
-- Can be placed anywhere except query
+### Unpatterned variable : `<variable_name>`
 - Used for getting value inside URL
 - Variable name can only use `A-Z`, `a-z`, `0-9`, and `_`
-- Default regex: `[^/]+` -> Any character more than 1 except `/`
-- Default regex can be changed
+- Regex: `[^/]+` -> Any character more than 1 except `/`
 
-### Variable Name With Specific Regex : `<variable_name:[a-z0-9]+>`
-- Can be placed anywhere except query
+### Patterned variable : `<variable_name:[a-z0-9]+>`
 - Used for getting value inside URL
 - Variable name can only use `A-Z`, `a-z`, `0-9`, and `_`
-- Default regex: `[^/]+` -> Any character more than 1 except `/`
-- Default regex can be changed
 - Variable name and regex separated with `:`
-- Specific regex overrides default regex
+- Regex: as written (can throw `PatternSyntaxException` when regex string is invalid)
 
 ## Installation
 

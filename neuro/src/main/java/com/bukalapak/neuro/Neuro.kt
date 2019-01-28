@@ -41,10 +41,12 @@ object Neuro {
             // path: /aaa/bbb/ccc/ddd
             // literalPathCount: 4
             val literalPathCount = cleanExpression.split('/').size
-            val hasWildcard = cleanExpression.contains('*')
+
+            // because specifix regex might contain regex to accept / and it will make path count might be increased
+            val hasPatternedRegex = cleanExpression.contains(PATTERNED_REGEX)
 
             // if it has wildcard, it means that the path count might be more than it should be, saved at index minus
-            val usedIndex = if (hasWildcard) -literalPathCount else literalPathCount
+            val usedIndex = if (hasPatternedRegex) -literalPathCount else literalPathCount
 
             val usedBranches = terminal[usedIndex] ?: let {
                 val newBranches = ConcurrentSkipListSet<AxonBranch>()
@@ -199,25 +201,22 @@ object Neuro {
 
         // build the final expression, if null, means that its optional, might be written or not
         val expression = StringBuilder().apply {
-
-            // `star` is not a regex expression, it's actually a * but it doesn't need to be processed to be .+ in toPattern() method
-            append(chosenNucleus.scheme?.let { "$it://" } ?: "(?:[^:]`star`://)?")
+            append(chosenNucleus.scheme?.let { "$it://" } ?: "(?:[^:]*://)?")
             append(chosenNucleus.host?.let { it } ?: "(?:[^/|:]+)?")
-            append(chosenNucleus.port?.let { ":$it" } ?: "(?::[^/]`star`)?")
-            append(branch?.expression ?: "(?:/*)?")
+            append(chosenNucleus.port?.let { ":$it" } ?: "(?::[^/]*)?")
+            append(branch?.expression ?: "(?:/.+)?")
         }.toString()
 
         val cleanUrl = uri.toString()
                 .split('#').first()
                 .split('?').first()
 
-        val pattern = expression.toPattern(true)
-                .replace("`star`", "*") // bring back the * after being processed
+        val pattern = expression.toPattern()
 
         val matcher = Pattern.compile(pattern).matcher(cleanUrl)
 
         val variableNames = mutableListOf<String>()
-        val variableMatcher = Pattern.compile(VARIABLE_REGEX).matcher(expression)
+        val variableMatcher = Pattern.compile(VARIABLE_ABLE_PATTERN).matcher(expression)
 
         // collect variable names from expression
         while (variableMatcher.find()) {

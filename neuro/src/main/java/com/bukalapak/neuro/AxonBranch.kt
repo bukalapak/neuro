@@ -6,12 +6,16 @@ class AxonBranch(val expression: String,
 
     private val comparedPattern by lazy {
 
-        // because comma's ascii number is between alphabet and * and it's invalid charater in url
-        expression.replace(VARIABLE_REGEX.toRegex(), ','.toString())
+        // because space's ascii number is smaller than all supported character in URL
+        val char = " "
+        expression
+                .replace(ANONYMOUS_REGEX, char)
+                .replace(UNPATTERNED_REGEX, char)
+                .replace(PATTERNED_REGEX, char)
     }
 
     private val pattern by lazy {
-        Regex(expression.toPattern(true))
+        Regex(expression.toPattern())
     }
 
     internal fun isMatch(path: String?): Boolean {
