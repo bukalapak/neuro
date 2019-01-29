@@ -76,7 +76,7 @@ object MyWebsiteSoma : Soma("my_website") {
 2. `SomaOnly`: URL that doesn't have path to be processed, multiple instances are allowed.
 
 ```kotlin
-object MyOtherWebsiteSoma : SomaOnly("my_other_website) {
+object MyOtherWebsiteSoma : SomaOnly("my_other_website") {
    
    val schemes = listOf("http")
    val hosts = listOf("www.myotherwebsite.com")
@@ -178,7 +178,7 @@ Add this line in your `build.gradle` file:
 implementation 'com.mrhabibi:neuro:$latestVersion'
 ```
 
-This library is hosted in the [Bintray repository](https://bintray.com/mrhabibi/maven), so you have to ensure that the repository is included:
+This library is hosted in the [bintray repository](https://bintray.com/mrhabibi/maven), so you have to ensure that the repository is included:
 
 ```
 buildscript {
