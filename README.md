@@ -196,7 +196,7 @@ Feel free to create issues and pull requests.
 
 ```
 Neuro library for Android
-Copyright (c) 2018 mrhabibi (http://github.com/bukalapak).
+Copyright (c) 2019 mrhabibi (http://github.com/bukalapak).
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
