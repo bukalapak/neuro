@@ -183,7 +183,7 @@ This library is hosted in the [Bintray repository](https://bintray.com/mrhabibi/
 ```
 buildscript {
    repositories {
-      maven { url  "https://dl.bintray.com/mrhabibi/maven" }
+      maven { url "https://dl.bintray.com/mrhabibi/maven" }
    }
 }
 ```

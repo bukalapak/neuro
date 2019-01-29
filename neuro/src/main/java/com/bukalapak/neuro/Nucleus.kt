@@ -134,7 +134,7 @@ sealed class Nucleus(val id: String) : Comparable<Nucleus> {
 abstract class Soma(id: String) : Nucleus(id) {
 
     internal val noBranchAction by lazy { AxonBranch("") { onProcessNoBranch(it) } }
-    internal val otherBranchAction by lazy { AxonBranch("/*") { onProcessOtherBranch(it) } }
+    internal val otherBranchAction by lazy { AxonBranch("/<path:.+>") { onProcessOtherBranch(it) } }
 
     // do return false if you want to forward action to AxonBranch
     open fun onSomaProcess(signal: Signal): Boolean = false
