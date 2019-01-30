@@ -8,10 +8,7 @@ class AxonBranch(val expression: String,
 
         // because space's ascii number is smaller than all supported character in URL
         val char = " "
-        expression
-                .replace(ANONYMOUS_REGEX, char)
-                .replace(UNPATTERNED_REGEX, char)
-                .replace(PATTERNED_REGEX, char)
+        expression.replace(ANY_VARIABLE, char)
     }
 
     private val pattern by lazy {

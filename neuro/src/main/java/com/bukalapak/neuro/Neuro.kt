@@ -25,10 +25,19 @@ object Neuro {
         }
     }
 
+    private fun String.adaptWithLiteral() = """\E$this\Q"""
+
+    private val subtitution = listOf(
+            "`scheme`" to "(?:[^:]*://)?".adaptWithLiteral(),
+            "`host`" to "(?:[^/|:]+)?".adaptWithLiteral(),
+            "`port`" to "(?::[^/]*)?".adaptWithLiteral(),
+            "`path`" to "(?:/.+)?".adaptWithLiteral()
+    )
+
     fun connect(soma: Soma, branches: List<AxonBranch>) {
         if (branches.any { it.expression.isBlank() }) throw IllegalArgumentException("One/more of branch expression is blank")
 
-        val terminal = neurons[soma] ?: let { _ ->
+        val terminal = neurons[soma] ?: let {
             val newTerminal = AxonTerminal(terminalComparator)
             neurons[soma] = newTerminal
             newTerminal
@@ -201,22 +210,29 @@ object Neuro {
 
         // build the final expression, if null, means that its optional, might be written or not
         val expression = StringBuilder().apply {
-            append(chosenNucleus.scheme?.let { "$it://" } ?: "(?:[^:]*://)?")
-            append(chosenNucleus.host?.let { it } ?: "(?:[^/|:]+)?")
-            append(chosenNucleus.port?.let { ":$it" } ?: "(?::[^/]*)?")
-            append(branch?.expression ?: "(?:/.+)?")
+            append(chosenNucleus.scheme?.let { "$it://" } ?: subtitution[0].first)
+            append(chosenNucleus.host?.let { it } ?: subtitution[1].first)
+            append(chosenNucleus.port?.let { ":$it" } ?: subtitution[2].first)
+            append(branch?.expression ?: subtitution[3].first)
         }.toString()
 
         val cleanUrl = uri.toString()
                 .split('#').first()
                 .split('?').first()
 
+        // insert subtitution after being processed by toPattern() to avoid unexpected conversion
+
         val pattern = expression.toPattern()
+                .replace(subtitution[0].first, subtitution[0].second)
+                .replace(subtitution[1].first, subtitution[1].second)
+                .replace(subtitution[2].first, subtitution[2].second)
+                .replace(subtitution[3].first, subtitution[3].second)
 
         val matcher = Pattern.compile(pattern).matcher(cleanUrl)
 
         val variableNames = mutableListOf<String>()
-        val variableMatcher = Pattern.compile(VARIABLE_ABLE_PATTERN).matcher(expression)
+
+        val variableMatcher = VARIABLE_ABLE_REGEX.toPattern().matcher(expression)
 
         // collect variable names from expression
         while (variableMatcher.find()) {

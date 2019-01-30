@@ -2,7 +2,6 @@ package com.bukalapak.neuro
 
 import java.util.concurrent.ConcurrentSkipListMap
 import java.util.concurrent.ConcurrentSkipListSet
-import java.util.regex.Pattern
 
 typealias SignalAction = (Signal) -> Unit
 typealias AxonPreprocessor = (AxonProcessor, SignalAction, Signal) -> Unit
@@ -10,35 +9,25 @@ typealias AxonProcessor = (SignalAction, Signal) -> Unit
 typealias NeuronRoute = Pair<Nucleus.Chosen, AxonBranch?>?
 typealias AxonTerminal = ConcurrentSkipListMap<Int, ConcurrentSkipListSet<AxonBranch>>
 
-private const val COMMON_PATTERN = "[^\\/]+"
+private const val COMMON_PATTERN = """[^/]+"""
 
-val ANONYMOUS_REGEX = "<>".toRegex()
-val UNPATTERNED_REGEX = "<\\w+>".toRegex()
-val PATTERNED_REGEX = "<\\w+:[^>]+>".toRegex()
+val ANONYMOUS_REGEX = """<>""".toRegex()
+val UNPATTERNED_REGEX = """<\w+>""".toRegex()
+val PATTERNED_REGEX = """<\w+:[^>]+>""".toRegex()
 
-const val VARIABLE_ABLE_PATTERN = "<(\\w+)(:([^>]+))?>"
+val ANY_VARIABLE = """<[^>]*>""".toRegex()
+val LITERAL_STRING_REGEX = """(^|>)([^<]+)""".toRegex()
+val VARIABLE_ABLE_REGEX = """<(\w+)(:([^>]+))?>""".toRegex()
 
 internal fun String.toPattern(): String {
+    return this.replace(LITERAL_STRING_REGEX) {
 
-    var regex = this
-
-    // add extra backslash
-    regex = regex.replace("\\", "\\\\")
-
-    // literally dot
-    regex = regex.replace("\\.".toRegex(), "\\\\.")
-
-    // unspecified regex
-    regex = regex.replace(ANONYMOUS_REGEX, COMMON_PATTERN)
-
-    // variable with no specific regex
-    regex = regex.replace("<\\w+>".toRegex(), "($COMMON_PATTERN)")
-
-    // variable with specific regex
-    val varRegexMatcher = Pattern.compile(VARIABLE_ABLE_PATTERN).matcher(regex)
-    while (varRegexMatcher.find()) {
-        regex = regex.replaceFirst(VARIABLE_ABLE_PATTERN.toRegex(), "(${varRegexMatcher.group(3)})")
+        // add literal string boundary
+        val prefix = it.groups[1]?.value ?: ""
+        val value = it.groups[2]?.value ?: ""
+        """$prefix\Q$value\E"""
     }
-
-    return regex
+            .replace(ANONYMOUS_REGEX, COMMON_PATTERN) // unspecified regex
+            .replace(UNPATTERNED_REGEX, "($COMMON_PATTERN)") // variable with no specific regex
+            .replace(VARIABLE_ABLE_REGEX, "($3)") // variable with specific regex
 }
