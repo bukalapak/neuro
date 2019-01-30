@@ -18,7 +18,7 @@ object Neuro {
     // this comparator used to priority sorting for the terminal index based on path count
     // from: -2, -1, -3, 5, 4, 1, -4, 3, 2, -5
     // to: 5, 4, 3, 2, 1, -5, -4, -3, -2, -1
-    private val terminalComparator = Comparator<Int> { index1, index2 ->
+    private val terminalComparator: Comparator<Int> = Comparator { index1, index2 ->
         when {
             index1 < 0 && index2 < 0 -> index1 - index2
             else -> index2 - index1

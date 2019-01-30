@@ -4,14 +4,14 @@ class AxonBranch(val expression: String,
                  val action: SignalAction
 ) : Comparable<AxonBranch> {
 
-    private val comparedPattern by lazy {
+    private val comparedPattern: String by lazy {
 
         // because space's ascii number is smaller than all supported character in URL
         val char = " "
         expression.replace(ANY_VARIABLE, char)
     }
 
-    private val pattern by lazy {
+    private val pattern: Regex by lazy {
         Regex(expression.toPattern())
     }
 

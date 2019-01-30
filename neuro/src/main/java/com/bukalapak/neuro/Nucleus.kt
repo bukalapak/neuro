@@ -3,14 +3,14 @@ package com.bukalapak.neuro
 sealed class Nucleus(val id: String) : Comparable<Nucleus> {
 
     // pattern to expression, sort descending from the longest pattern
-    private val schemePatterns by lazy {
+    private val schemePatterns: List<Pair<Regex, String>> by lazy {
         schemes.map { it.toPattern() to it }
                 .sortedByDescending { it.first }
                 .map { Regex(it.first) to it.second }
     }
 
     // pattern to expression, sort descending from the longest pattern
-    private val hostPatterns by lazy {
+    private val hostPatterns: List<Pair<Regex, String>> by lazy {
         hosts.map { it.toPattern() to it }
                 .sortedByDescending { it.first }
                 .map { Regex(it.first) to it.second }
@@ -67,7 +67,7 @@ sealed class Nucleus(val id: String) : Comparable<Nucleus> {
         return Chosen(this, chosenScheme, chosenHost, chosenPort)
     }
 
-    internal val memberCount by lazy {
+    internal val memberCount: Int by lazy {
         val schemeSize = if (schemes.isEmpty()) 1 else schemes.size
         val hostSize = if (hosts.isEmpty()) 1 else hosts.size
         val portSize = if (ports.isEmpty()) 1 else ports.size
@@ -99,15 +99,15 @@ sealed class Nucleus(val id: String) : Comparable<Nucleus> {
     }
 
     // empty means may be included or not
-    open val schemes = emptyList<String>()
+    open val schemes: List<String> = emptyList()
 
     // empty means may be included or not
-    open val hosts = emptyList<String>()
+    open val hosts: List<String> = emptyList()
 
     // empty means may be included or not
-    open val ports = emptyList<Int>()
+    open val ports: List<Int> = emptyList()
 
-    open val priority = Int.MAX_VALUE - 1 // because SomaFallback should be the lowest priority
+    open val priority: Int = Int.MAX_VALUE - 1 // because SomaFallback should be the lowest priority
 
     class Chosen(val nucleus: Nucleus,
                  val scheme: String?,
@@ -133,8 +133,8 @@ sealed class Nucleus(val id: String) : Comparable<Nucleus> {
 
 abstract class Soma(id: String) : Nucleus(id) {
 
-    internal val noBranchAction by lazy { AxonBranch("") { onProcessNoBranch(it) } }
-    internal val otherBranchAction by lazy { AxonBranch("/<path:.+>") { onProcessOtherBranch(it) } }
+    internal val noBranchAction: AxonBranch by lazy { AxonBranch("") { onProcessNoBranch(it) } }
+    internal val otherBranchAction: AxonBranch by lazy { AxonBranch("/<path:.+>") { onProcessOtherBranch(it) } }
 
     // do return false if you want to forward action to AxonBranch
     open fun onSomaProcess(signal: Signal): Boolean = false
