@@ -55,7 +55,7 @@ object MyWebsiteSoma : Soma("my_website") {
    val schemes = listOf("https")
    val hosts = listOf("www.mywebsite.com", "m.mywebsite.com")
    
-   override fun onSomaProcess(signal: Signal) : Boolean {
+   override fun onSomaProcess(signal: Signal): Boolean {
       // preprocess URL here
       // return false/super if you need to forward process to branch
       // return true if you want to stop processing
@@ -174,13 +174,13 @@ Used to take part of `scheme`, `host`, or `path` of URL. This language may not w
 
 Add this line in your `build.gradle` file:
 
-```
+```groovy
 implementation 'com.mrhabibi:neuro:$latestVersion'
 ```
 
 This library is hosted in the [bintray repository](https://bintray.com/mrhabibi/maven), so you have to ensure that the repository is included:
 
-```
+```groovy
 buildscript {
    repositories {
       maven { url "https://dl.bintray.com/mrhabibi/maven" }
