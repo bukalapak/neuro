@@ -187,10 +187,10 @@ object Neuro {
 
         return Uri.Builder()
                 .scheme(uri.scheme?.toLowerCase())
-                .authority(uri.authority?.toLowerCase())
-                .fragment(uri.fragment)
-                .query(uri.query)
-                .path(usedPath)
+                .encodedAuthority(uri.authority?.toLowerCase())
+                .encodedFragment(uri.fragment)
+                .encodedQuery(uri.query)
+                .encodedPath(usedPath)
                 .build()
     }
 
