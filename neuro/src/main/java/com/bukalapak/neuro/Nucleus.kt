@@ -4,16 +4,18 @@ sealed class Nucleus(val id: String) : Comparable<Nucleus> {
 
     // pattern to expression, sort descending from the longest pattern
     private val schemePatterns: List<Pair<Regex, String>> by lazy {
-        schemes.map { it.toPattern() to it }
-                .sortedByDescending { it.first }
-                .map { Regex(it.first) to it.second }
+        schemes.map {
+            val lowerCase = it.toLowerCase() // make it lowercase
+            lowerCase.toPattern() to lowerCase
+        }.sortedByDescending { it.first }.map { Regex(it.first) to it.second }
     }
 
     // pattern to expression, sort descending from the longest pattern
     private val hostPatterns: List<Pair<Regex, String>> by lazy {
-        hosts.map { it.toPattern() to it }
-                .sortedByDescending { it.first }
-                .map { Regex(it.first) to it.second }
+        hosts.map {
+            val lowerCase = it.toLowerCase() // make it lowercase
+            lowerCase.toPattern() to lowerCase
+        }.sortedByDescending { it.first }.map { Regex(it.first) to it.second }
     }
 
     // only return boolen

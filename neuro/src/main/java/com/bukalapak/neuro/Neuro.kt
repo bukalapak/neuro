@@ -175,21 +175,23 @@ object Neuro {
         return chosenNucleus to branch
     }
 
-    // remove path's last slash
+    // remove path's last slash and convert to lowercases
     private fun String.toOptimizedUri(): Uri? {
         val uri = Uri.parse(this)
         val path = uri.path
-        return if (path?.endsWith('/') == true) {
+
+        val usedPath = if (path?.endsWith('/') == true) {
             val optimizedPath = path.removeSuffix("/")
-            val usedPath = if (optimizedPath.isNotEmpty()) optimizedPath else null
-            Uri.Builder()
-                    .scheme(uri.scheme)
-                    .authority(uri.authority)
-                    .fragment(uri.fragment)
-                    .query(uri.query)
-                    .path(usedPath)
-                    .build()
-        } else uri
+            if (optimizedPath.isNotEmpty()) optimizedPath else null
+        } else path
+
+        return Uri.Builder()
+                .scheme(uri.scheme?.toLowerCase())
+                .authority(uri.authority?.toLowerCase())
+                .fragment(uri.fragment)
+                .query(uri.query)
+                .path(usedPath)
+                .build()
     }
 
     private fun String.adaptWithLiteral() = """\E$this\Q"""
