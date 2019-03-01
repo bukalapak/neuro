@@ -178,12 +178,12 @@ Add this line in your `build.gradle` file:
 implementation 'com.mrhabibi:neuro:$latestVersion'
 ```
 
-This library is hosted in the [bintray repository](https://bintray.com/mrhabibi/maven), so you have to ensure that the repository is included:
+This library is hosted in the [JCenter repository](https://bintray.com/mrhabibi/maven), so you have to ensure that the repository is included:
 
 ```groovy
 buildscript {
    repositories {
-      maven { url "https://dl.bintray.com/mrhabibi/maven" }
+      jcenter()
    }
 }
 ```
