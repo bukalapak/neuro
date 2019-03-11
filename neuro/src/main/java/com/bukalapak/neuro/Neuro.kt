@@ -178,19 +178,17 @@ object Neuro {
     // remove path's last slash and convert to lowercases
     private fun String.toOptimizedUri(): Uri? {
         val uri = Uri.parse(this)
-        val path = uri.path
+        val encodedPath = uri.encodedPath
 
-        val usedPath = if (path?.endsWith('/') == true) {
-            val optimizedPath = path.removeSuffix("/")
+        val normalizedPath = if (encodedPath?.endsWith('/') == true) {
+            val optimizedPath = encodedPath.removeSuffix("/")
             if (optimizedPath.isNotEmpty()) optimizedPath else null
-        } else path
+        } else encodedPath
 
-        return Uri.Builder()
+        return uri.buildUpon()
                 .scheme(uri.scheme?.toLowerCase())
-                .encodedAuthority(uri.authority?.toLowerCase())
-                .encodedFragment(uri.fragment)
-                .encodedQuery(uri.query)
-                .encodedPath(usedPath)
+                .encodedAuthority(uri.encodedAuthority?.toLowerCase())
+                .encodedPath(normalizedPath)
                 .build()
     }
 
