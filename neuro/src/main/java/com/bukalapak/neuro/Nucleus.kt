@@ -135,8 +135,8 @@ sealed class Nucleus(val id: String) : Comparable<Nucleus> {
 
 abstract class Soma(id: String) : Nucleus(id) {
 
-    internal val noBranchAction: AxonBranch by lazy { AxonBranch("") { onProcessNoBranch(it) } }
-    internal val otherBranchAction: AxonBranch by lazy { AxonBranch("/<path:.+>") { onProcessOtherBranch(it) } }
+    internal val noBranchAction: AxonBranch by lazy { AxonBranch(EXPRESSION_NO_BRANCH) { onProcessNoBranch(it) } }
+    internal val otherBranchAction: AxonBranch by lazy { AxonBranch(EXPRESSION_OTHER_BRANCH) { onProcessOtherBranch(it) } }
 
     // do return false if you want to forward action to AxonBranch
     open fun onSomaProcess(signal: Signal): Boolean = false
@@ -146,6 +146,11 @@ abstract class Soma(id: String) : Nucleus(id) {
 
     // onSomaProcess must return false to be processed here
     open fun onProcessOtherBranch(signal: Signal) = Unit
+
+    companion object {
+        const val EXPRESSION_NO_BRANCH = ""
+        const val EXPRESSION_OTHER_BRANCH = "/<path:.+>"
+    }
 }
 
 abstract class SomaOnly(id: String) : Nucleus(id) {
@@ -153,10 +158,14 @@ abstract class SomaOnly(id: String) : Nucleus(id) {
     open fun onSomaProcess(signal: Signal) = Unit
 }
 
-abstract class SomaFallback : SomaOnly("*") {
+abstract class SomaFallback : SomaOnly(ID) {
 
     final override val schemes = super.schemes
     final override val hosts = super.hosts
     final override val ports = super.ports
     final override val priority: Int = Int.MAX_VALUE
+
+    companion object {
+        const val ID = "*"
+    }
 }

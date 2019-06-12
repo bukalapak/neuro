@@ -1,12 +1,13 @@
 package com.bukalapak.neuro
 
+import android.net.Uri
 import java.util.concurrent.ConcurrentSkipListMap
 import java.util.concurrent.ConcurrentSkipListSet
 
 typealias SignalAction = (Signal) -> Unit
 typealias AxonPreprocessor = (AxonProcessor, SignalAction, Signal) -> Unit
 typealias AxonProcessor = (SignalAction, Signal) -> Unit
-typealias NeuronRoute = Pair<Nucleus.Chosen, AxonBranch?>?
+typealias NeuronRoute = Triple<Nucleus.Chosen, AxonBranch?, Uri>?
 typealias AxonTerminal = ConcurrentSkipListMap<Int, ConcurrentSkipListSet<AxonBranch>>
 
 private const val COMMON_PATTERN = """[^/]+"""

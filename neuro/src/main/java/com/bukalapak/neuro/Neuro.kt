@@ -75,8 +75,8 @@ object Neuro {
     ) {
         Log.i(TAG, "Starting time: " + System.currentTimeMillis().toString())
         Log.i(TAG, "Transporting url $url")
-        val uri = url.toOptimizedUri() ?: throw IllegalArgumentException("Url is not valid")
-        val parts = route ?: findRoute(uri)
+
+        val parts = route ?: findRoute(url)
 
         if (parts == null) {
             Log.e(TAG, "Url $url has no route")
@@ -88,6 +88,7 @@ object Neuro {
         val chosenNucleus = parts.first
         val nucleus = chosenNucleus.nucleus
         val branch = parts.second
+        val uri = parts.third
 
         val signal = extractSignal(chosenNucleus, context, branch, uri, args)
 
@@ -128,7 +129,9 @@ object Neuro {
         )
     }
 
-    fun findRoute(uri: Uri): NeuronRoute {
+    fun findRoute(url: String): NeuronRoute {
+        val uri = url.toOptimizedUri() ?: throw IllegalArgumentException("Url is not valid")
+
         val scheme = uri.scheme
         val host = uri.host
         val port = uri.port
@@ -172,7 +175,7 @@ object Neuro {
             }
         }
 
-        return chosenNucleus to branch
+        return Triple(chosenNucleus, branch, uri)
     }
 
     // remove path's last slash and convert to lowercases
@@ -254,5 +257,9 @@ object Neuro {
         }
 
         return Signal(context, uri, uri.toString(), variables, queries, fragment, args)
+    }
+
+    fun clearConnection() {
+        neurons
     }
 }
