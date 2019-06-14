@@ -67,28 +67,47 @@ object Neuro {
         neurons[soma] = dummy
     }
 
-    fun proceed(url: String,
-                context: Context? = null,
-                axonProcessor: AxonProcessor? = null,
-                args: Bundle = Bundle(),
-                route: NeuronRoute = null
+    @JvmOverloads
+    fun proceed(
+        url: String,
+        decision: RouteDecision?,
+        context: Context? = null,
+        axonProcessor: AxonProcessor? = null,
+        args: Bundle = Bundle()
     ) {
-        Log.i(TAG, "Starting time: " + System.currentTimeMillis().toString())
-        Log.i(TAG, "Transporting url $url")
+        proceedInternal(url, decision, context, axonProcessor, args)
+    }
 
-        val parts = route ?: findRoute(url)
+    @JvmOverloads
+    fun proceed(
+        url: String,
+        context: Context? = null,
+        axonProcessor: AxonProcessor? = null,
+        args: Bundle = Bundle()
+    ) {
+        proceedInternal(url, findRoute(url), context, axonProcessor, args)
+    }
 
-        if (parts == null) {
+    private fun proceedInternal(
+        url: String,
+        decision: RouteDecision?,
+        context: Context? = null,
+        axonProcessor: AxonProcessor? = null,
+        args: Bundle = Bundle()
+    ) {
+        Log.i(TAG, "Routing url $url")
+
+        if (decision == null) {
             Log.e(TAG, "Url $url has no route")
             return
         } else {
-            Log.i(TAG, "Routing via ${parts.first.nucleus} and ${parts.second}")
+            Log.i(TAG, "Routing via ${decision.first.nucleus} and ${decision.second}")
         }
 
-        val chosenNucleus = parts.first
+        val chosenNucleus = decision.first
         val nucleus = chosenNucleus.nucleus
-        val branch = parts.second
-        val uri = parts.third
+        val branch = decision.second
+        val uri = decision.third
 
         val signal = extractSignal(chosenNucleus, context, branch, uri, args)
 
@@ -121,15 +140,14 @@ object Neuro {
             _action.invoke(_signal)
         }
 
-        Log.i(TAG, "Finishing time: " + System.currentTimeMillis().toString())
         usedAxonPreprocessor.invoke(
-                usedAxonProcessor,
-                branch.action,
-                signal
+            usedAxonProcessor,
+            branch.action,
+            signal
         )
     }
 
-    fun findRoute(url: String): NeuronRoute {
+    fun findRoute(url: String): RouteDecision? {
         val uri = url.toOptimizedUri() ?: throw IllegalArgumentException("Url is not valid")
 
         val scheme = uri.scheme
@@ -161,11 +179,11 @@ object Neuro {
                     // pathCount: 5
                     // possibleBranches: 5, -5, -4, -3, -2, -1
                     val possibleBranches = chosenTerminal
-                            .filter { (index, _) ->
-                                index == pathCount || (index >= -pathCount && index < 0)
-                            }
-                            .map { (_, branches) -> branches }
-                            .flatten()
+                        .filter { (index, _) ->
+                            index == pathCount || (index >= -pathCount && index < 0)
+                        }
+                        .map { (_, branches) -> branches }
+                        .flatten()
 
                     val matchedBranch = possibleBranches.find {
                         it.isMatch(path)
@@ -189,19 +207,20 @@ object Neuro {
         } else encodedPath
 
         return uri.buildUpon()
-                .scheme(uri.scheme?.toLowerCase())
-                .encodedAuthority(uri.encodedAuthority?.toLowerCase())
-                .encodedPath(normalizedPath)
-                .build()
+            .scheme(uri.scheme?.toLowerCase())
+            .encodedAuthority(uri.encodedAuthority?.toLowerCase())
+            .encodedPath(normalizedPath)
+            .build()
     }
 
     private fun String.adaptWithLiteral() = """\E$this\Q"""
 
-    private fun extractSignal(chosenNucleus: Nucleus.Chosen,
-                              context: Context?,
-                              branch: AxonBranch?,
-                              uri: Uri,
-                              args: Bundle
+    private fun extractSignal(
+        chosenNucleus: Nucleus.Chosen,
+        context: Context?,
+        branch: AxonBranch?,
+        uri: Uri,
+        args: Bundle
     ): Signal? {
 
         // build the final expression, if null, means that its optional, might be written or not
@@ -213,8 +232,8 @@ object Neuro {
         }.toString()
 
         val cleanUrl = uri.toString()
-                .split('#').first()
-                .split('?').first()
+            .split('#').first()
+            .split('?').first()
 
         val pattern = expression.toPattern()
 
