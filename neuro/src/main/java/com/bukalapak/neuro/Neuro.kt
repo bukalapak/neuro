@@ -4,16 +4,18 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import java.util.Locale
 import java.util.concurrent.ConcurrentSkipListMap
 import java.util.concurrent.ConcurrentSkipListSet
 import java.util.regex.Pattern
 
 object Neuro {
 
-    private const val TAG = "Neuro"
+    internal const val TAG = "Neuro"
 
     internal val neurons = ConcurrentSkipListMap<Nucleus, AxonTerminal>()
     var preprocessor: AxonPreprocessor? = null
+    var logger: Logger? = Logger.DEFAULT
 
     // this comparator used to priority sorting for the terminal index based on path count
     // from: -2, -1, -3, 5, 4, 1, -4, 3, 2, -5
@@ -25,8 +27,23 @@ object Neuro {
         }
     }
 
+    @Synchronized
     fun connect(soma: Soma, branches: List<AxonBranch>) {
-        if (branches.any { it.expression.isBlank() }) throw IllegalArgumentException("One/more of branch expression is blank")
+        val expression = branches.map { it.expression }
+        val blacklistedExpression = listOf(
+            Soma.EXPRESSION_NO_BRANCH,
+            Soma.EXPRESSION_NO_BRANCH_WITH_SLASH,
+            Soma.EXPRESSION_OTHER_BRANCH
+        )
+        val diff = expression - blacklistedExpression
+        if (diff.size < expression.size) {
+            Log.e(
+                TAG,
+                "Please move your logic of expression $diff to " +
+                    "Soma.onProcessNoBranch() and/or Soma.onProcessOtherBranch()"
+            )
+            return
+        }
 
         val terminal = neurons[soma] ?: let {
             val newTerminal = AxonTerminal(terminalComparator)
@@ -35,15 +52,13 @@ object Neuro {
         }
 
         branches.forEach { branch ->
-            val cleanExpression = branch.expression.removePrefix("/")
-
             // use path count as index to save in hashmap
             // path: /aaa/bbb/ccc/ddd
             // literalPathCount: 4
-            val literalPathCount = cleanExpression.split('/').size
+            val literalPathCount = branch.expression.split('/').size - 1
 
-            // because specifix regex might contain regex to accept / and it will make path count might be increased
-            val hasPatternedRegex = cleanExpression.contains(PATTERNED_REGEX)
+            // because specific regex might contain regex to accept / and it will make path count might be increased
+            val hasPatternedRegex = branch.expression.contains(PATTERNED_REGEX)
 
             // if it has wildcard, it means that the path count might be more than it should be, saved at index minus
             val usedIndex = if (hasPatternedRegex) -literalPathCount else literalPathCount
@@ -95,13 +110,13 @@ object Neuro {
         axonProcessor: AxonProcessor? = null,
         args: Bundle = Bundle()
     ) {
-        Log.i(TAG, "Routing url $url")
+        logger?.onRoutingUrl(url)
 
         if (decision == null) {
-            Log.e(TAG, "Url $url has no route")
+            logger?.onUrlHasNoResult(url)
             return
         } else {
-            Log.i(TAG, "Routing via ${decision.first.nucleus} and ${decision.second}")
+            logger?.onUrlHasResult(url, decision.first.nucleus, decision.second)
         }
 
         val chosenNucleus = decision.first
@@ -109,12 +124,7 @@ object Neuro {
         val branch = decision.second
         val uri = decision.third
 
-        val signal = extractSignal(chosenNucleus, context, branch, uri, args)
-
-        if (signal == null) {
-            Log.e(TAG, "Url $url has no successful match")
-            return
-        }
+        val signal = extractSignal(chosenNucleus, context, branch, uri, args) ?: return
 
         when (nucleus) {
             is Soma -> {
@@ -122,7 +132,7 @@ object Neuro {
 
                 // check whether Soma need to forward to AxonBranch or not
                 if (transportDone) {
-                    Log.i(TAG, "Nucleus transporter returned false")
+                    logger?.onNucleusReturnedFalse(url)
                     return
                 }
             }
@@ -150,6 +160,8 @@ object Neuro {
     fun findRoute(url: String): RouteDecision? {
         val uri = url.toOptimizedUri() ?: throw IllegalArgumentException("Url is not valid")
 
+        logger?.onFindRouteStarted(url)
+
         val scheme = uri.scheme
         val host = uri.host
         val port = uri.port
@@ -158,9 +170,7 @@ object Neuro {
         // find matched nucleus
         val chosenNucleus = neurons.keys.asSequence().find {
             it.isMatch(scheme, host, port)
-        }?.let {
-            it.nominate(scheme, host, port)
-        } ?: return null
+        }?.nominate(scheme, host, port) ?: return null
 
         val nucleus = chosenNucleus.nucleus
 
@@ -170,47 +180,54 @@ object Neuro {
         val branch = when (nucleus) {
             is SomaOnly -> null
             is Soma -> {
-                val pathCount = uri.pathSegments.size
+                val pathCount = uri.path?.let {
+                    it.split('/').size - 1
+                }
 
-                if (pathCount == 0) {
-                    nucleus.noBranchAction
-                } else {
-                    // find all possible branches for prioritizing
-                    // pathCount: 5
-                    // possibleBranches: 5, -5, -4, -3, -2, -1
-                    val possibleBranches = chosenTerminal
-                        .filter { (index, _) ->
-                            index == pathCount || (index >= -pathCount && index < 0)
-                        }
-                        .map { (_, branches) -> branches }
-                        .flatten()
-
-                    val matchedBranch = possibleBranches.find {
-                        it.isMatch(path)
+                when {
+                    pathCount == null || pathCount == 0 -> {
+                        nucleus.noBranchAction
                     }
-                    matchedBranch ?: nucleus.otherBranchAction
+                    path == Soma.EXPRESSION_NO_BRANCH_WITH_SLASH -> {
+                        nucleus.noBranchWithSlashAction
+                    }
+                    else -> {
+                        // find all possible branches for prioritizing
+                        // pathCount: 5
+                        // possibleBranches: 5, -5, -4, -3, -2, -1
+                        val possibleBranches = chosenTerminal
+                            .filter { (index, _) ->
+                                index == pathCount || (index >= -pathCount && index < 0)
+                            }
+                            .map { (_, branches) -> branches }
+                            .flatten()
+
+                        val matchedBranch = possibleBranches.find {
+                            it.isMatch(path)
+                        }
+                        matchedBranch ?: nucleus.otherBranchAction
+                    }
                 }
             }
         }
 
+        logger?.onFindRouteFinished(url)
+
         return Triple(chosenNucleus, branch, uri)
     }
 
-    // remove path's last slash and convert to lowercases
+    // convert to lowercase for scheme and authority
     private fun String.toOptimizedUri(): Uri? {
         val uri = Uri.parse(this)
         val encodedPath = uri.encodedPath
 
-        val normalizedPath = if (encodedPath?.endsWith('/') == true) {
-            val optimizedPath = encodedPath.removeSuffix("/")
-            if (optimizedPath.isNotEmpty()) optimizedPath else null
-        } else encodedPath
-
-        return uri.buildUpon()
-            .scheme(uri.scheme?.toLowerCase())
-            .encodedAuthority(uri.encodedAuthority?.toLowerCase())
-            .encodedPath(normalizedPath)
-            .build()
+        return if (uri.isOpaque) uri else { // if like mailto:aaa@bbb.com
+            uri.buildUpon()
+                .scheme(uri.scheme?.toLowerCase(Locale.ROOT))
+                .encodedAuthority(uri.encodedAuthority?.toLowerCase(Locale.ROOT))
+                .encodedPath(encodedPath)
+                .build()
+        }
     }
 
     private fun String.adaptWithLiteral() = """\E$this\Q"""
@@ -228,7 +245,7 @@ object Neuro {
             append(chosenNucleus.scheme?.let { "$it://" } ?: "(?:[^:]*://)?".adaptWithLiteral())
             append(chosenNucleus.host?.let { it } ?: "(?:[^/|:]+)?".adaptWithLiteral())
             append(chosenNucleus.port?.let { ":$it" } ?: "(?::[^/]*)?".adaptWithLiteral())
-            append(branch?.expression ?: "(?:/.+)?".adaptWithLiteral())
+            append(branch?.expression ?: "(?:/.*)?".adaptWithLiteral())
         }.toString()
 
         val cleanUrl = uri.toString()
@@ -249,7 +266,10 @@ object Neuro {
         }
 
         // collect the variables
-        if (!matcher.matches()) return null
+        if (!matcher.matches()) { // may happen if regex for variable is invalid
+            Log.e(TAG, "Regex is invalid")
+            return null
+        }
 
         val variables = OptWave()
         variableNames.forEachIndexed { index, name ->
@@ -262,16 +282,12 @@ object Neuro {
 
         // collect the queries
         val queries = OptWaves()
-        if (!uri.query.isNullOrEmpty()) {
-            try {
-                val names = uri.queryParameterNames // It crashes in very long query value
+        if (!uri.query.isNullOrEmpty() && uri.isHierarchical) { // TODO: parse query for opaque form
+            val names = uri.queryParameterNames
 
-                // put into the container
-                names.forEach {
-                    queries[it] = uri.getQueryParameters(it)
-                }
-            } catch (ignored: Exception) {
-                // exception never been catched, internal bug from android (?)
+            // put into the container
+            names.forEach {
+                queries[it] = uri.getQueryParameters(it)
             }
         }
 
@@ -279,6 +295,6 @@ object Neuro {
     }
 
     fun clearConnection() {
-        neurons
+        neurons.clear()
     }
 }

@@ -25,5 +25,4 @@ object SimpleNeuro {
     fun proceed(url: String, context: Context? = null) {
         Neuro.proceed(url, context)
     }
-
 }

@@ -1,11 +1,13 @@
 package com.bukalapak.neuro
 
+import java.util.Locale
+
 sealed class Nucleus(val id: String) : Comparable<Nucleus> {
 
     // pattern to expression, sort descending from the longest pattern
     private val schemePatterns: List<Pair<Regex, String>> by lazy {
         schemes.map {
-            val lowerCase = it.toLowerCase() // make it lowercase
+            val lowerCase = it.toLowerCase(Locale.ROOT) // make it lowercase
             lowerCase.toPattern() to lowerCase
         }.sortedByDescending { it.first }.map { Regex(it.first) to it.second }
     }
@@ -13,15 +15,16 @@ sealed class Nucleus(val id: String) : Comparable<Nucleus> {
     // pattern to expression, sort descending from the longest pattern
     private val hostPatterns: List<Pair<Regex, String>> by lazy {
         hosts.map {
-            val lowerCase = it.toLowerCase() // make it lowercase
+            val lowerCase = it.toLowerCase(Locale.ROOT) // make it lowercase
             lowerCase.toPattern() to lowerCase
         }.sortedByDescending { it.first }.map { Regex(it.first) to it.second }
     }
 
     // only return boolen
-    internal fun isMatch(scheme: String?,
-                         host: String?,
-                         port: Int
+    internal fun isMatch(
+        scheme: String?,
+        host: String?,
+        port: Int
     ): Boolean {
 
         val hostMatch = hostPatterns.isEmpty() || hostPatterns.any {
@@ -42,28 +45,23 @@ sealed class Nucleus(val id: String) : Comparable<Nucleus> {
     }
 
     // return matched nucleus
-    internal fun nominate(scheme: String?,
-                          host: String?,
-                          port: Int
+    internal fun nominate(
+        scheme: String?,
+        host: String?,
+        port: Int
     ): Chosen? {
 
         val chosenHost = if (hostPatterns.isEmpty()) null
         else hostPatterns.find {
             it.first.matches(host ?: "")
-        }?.let {
-            it.second
-        }
+        }?.second
 
         val chosenScheme = if (schemePatterns.isEmpty()) null
         else schemePatterns.find {
             it.first.matches(scheme ?: "")
-        }?.let {
-            it.second
-        }
+        }?.second
 
-        val chosenPort = if (ports.isEmpty()) null
-        else if (ports.contains(port)) port
-        else return null
+        val chosenPort = if (ports.isEmpty()) null else port
 
         // all passed, means all is match
         return Chosen(this, chosenScheme, chosenHost, chosenPort)
@@ -109,25 +107,21 @@ sealed class Nucleus(val id: String) : Comparable<Nucleus> {
     // empty means may be included or not
     open val ports: List<Int> = emptyList()
 
-    open val priority: Int = Int.MAX_VALUE - 1 // because SomaFallback should be the lowest priority
+    open val priority: Int = 100 // default priority, just random number between 0 and Int.MAX_VALUE
 
-    class Chosen(val nucleus: Nucleus,
-                 val scheme: String?,
-                 val host: String?,
-                 val port: Int?
+    class Chosen(
+        val nucleus: Nucleus,
+        val scheme: String?,
+        val host: String?,
+        val port: Int?
     )
 
     final override fun toString(): String = id
 
     final override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-        if (other == null || other !is Nucleus) {
-            return false
-        }
+        if (this === other) return true
+        if (other == null || other !is Nucleus) return false
         return id == other.id
-
     }
 
     final override fun hashCode(): Int = 31 * id.hashCode()
@@ -135,8 +129,21 @@ sealed class Nucleus(val id: String) : Comparable<Nucleus> {
 
 abstract class Soma(id: String) : Nucleus(id) {
 
-    internal val noBranchAction: AxonBranch by lazy { AxonBranch(EXPRESSION_NO_BRANCH) { onProcessNoBranch(it) } }
-    internal val otherBranchAction: AxonBranch by lazy { AxonBranch(EXPRESSION_OTHER_BRANCH) { onProcessOtherBranch(it) } }
+    internal val noBranchAction: AxonBranch by lazy {
+        AxonBranch(EXPRESSION_NO_BRANCH) {
+            onProcessNoBranch(it)
+        }
+    }
+    internal val noBranchWithSlashAction: AxonBranch by lazy {
+        AxonBranch(EXPRESSION_NO_BRANCH_WITH_SLASH) {
+            onProcessNoBranch(it)
+        }
+    }
+    internal val otherBranchAction: AxonBranch by lazy {
+        AxonBranch(EXPRESSION_OTHER_BRANCH) {
+            onProcessOtherBranch(it)
+        }
+    }
 
     // do return false if you want to forward action to AxonBranch
     open fun onSomaProcess(signal: Signal): Boolean = false
@@ -149,13 +156,14 @@ abstract class Soma(id: String) : Nucleus(id) {
 
     companion object {
         const val EXPRESSION_NO_BRANCH = ""
+        const val EXPRESSION_NO_BRANCH_WITH_SLASH = "/"
         const val EXPRESSION_OTHER_BRANCH = "/<path:.+>"
     }
 }
 
 abstract class SomaOnly(id: String) : Nucleus(id) {
 
-    open fun onSomaProcess(signal: Signal) = Unit
+    abstract fun onSomaProcess(signal: Signal)
 }
 
 abstract class SomaFallback : SomaOnly(ID) {

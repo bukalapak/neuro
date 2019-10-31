@@ -15,7 +15,7 @@ ext {
     siteUrl = 'https://github.com/bukalapak/neuro'
     gitUrl = 'https://github.com/bukalapak/neuro.git'
 
-    libraryVersion = '2.0.5'
+    libraryVersion = '2.1.0'
 
     developerId = 'mrhabibi'
     developerName = 'Muhammad Rizky Habibi'
@@ -53,7 +53,7 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 28
-        versionCode 20005
+        versionCode 20100
         versionName "$libraryVersion"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -78,7 +78,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     testImplementation "junit:junit:$junit"
+    testImplementation "androidx.test.ext:junit:$junitX"
     testImplementation "org.robolectric:robolectric:$roboelectric"
+    testImplementation "com.natpryce:hamkrest:$hamkrest"
 }
 
 apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'

@@ -1,7 +1,8 @@
 package com.bukalapak.neuro
 
-class AxonBranch(val expression: String,
-                 val action: SignalAction
+class AxonBranch(
+    val expression: String,
+    val action: SignalAction
 ) : Comparable<AxonBranch> {
 
     private val comparedPattern: String by lazy {
@@ -23,6 +24,7 @@ class AxonBranch(val expression: String,
 
         return pattern.matches(cleanPath)
     }
+
     /**
      * Priorities:
      * #1 length
