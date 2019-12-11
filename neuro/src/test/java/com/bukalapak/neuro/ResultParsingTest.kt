@@ -13,35 +13,37 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ResultParsingTest {
 
+    private val router = Neuro()
+
     @Before
     fun init() {
-        Neuro.clearConnection()
+        router.clearConnection()
     }
 
     @Test
     fun `url and uri passing is correct`() {
-        connectMySite("/faq") {
+        connectMySite(router, "/faq") {
             val url = "https://www.mysite.com/faq"
             assertThat(it.url, equalTo(url))
             assertThat(it.uri, equalTo(Uri.parse(url)))
         }
-        Neuro.proceed("https://www.mysite.com/faq")
+        router.proceed("https://www.mysite.com/faq")
     }
 
     @Test
     fun `context and args passing is correct`() {
-        connectMySite("/yes") {
+        connectMySite(router, "/yes") {
             assertThat(it.context, absent())
             assertThat(it.args?.getBoolean("passed"), equalTo(true))
         }
-        Neuro.proceed("https://www.mysite.com/yes", null, null, Bundle().apply {
+        router.proceed("https://www.mysite.com/yes", null, null, Bundle().apply {
             putBoolean("passed", true)
         })
     }
 
     @Test
     fun `variable parsing is correct`() {
-        connectMySite("/product/<product_id>/<>/edit/<slug:[0-9]+>/<label:.+>-<>-<>") {
+        connectMySite(router, "/product/<product_id>/<>/edit/<slug:[0-9]+>/<label:.+>-<>-<>") {
             assertThat(it.variables.get("product_id"), equalTo(listOf("!@#Asd123")))
 
             assertThat(it.variables.getString("product_id"), equalTo("!@#Asd123"))
@@ -62,12 +64,12 @@ class ResultParsingTest {
             assertThat(it.variables.getLong("getLong"), absent())
             assertThat(it.variables.optLong("optLong"), equalTo(0L))
         }
-        Neuro.proceed("https://www.mysite.com/product/!@#Asd123/#$%Dfg234/edit/12345/Fgh$%^789-Blablabla-123456")
+        router.proceed("https://www.mysite.com/product/!@#Asd123/#$%Dfg234/edit/12345/Fgh$%^789-Blablabla-123456")
     }
 
     @Test
     fun `query parsing is correct`() {
-        connectMySite("/tnc") {
+        connectMySite(router, "/tnc") {
             assertThat(it.queries.get("key"), equalTo(listOf("value")))
 
             assertThat(it.queries.getString("key"), equalTo("value"))
@@ -101,12 +103,12 @@ class ResultParsingTest {
         val url = "https://www.mysite.com/tnc" +
                 "?key=value&123=234&boolean1=1&boolean2=false&float=0.5&double=1.9&long=9000" +
                 "&url=https%3A%2F%2Fgithub.com%2Fmrhabibi&search%5Bkey%5D=celana%20hitam"
-        Neuro.proceed(url)
+        router.proceed(url)
     }
 
     @Test
     fun `multi queries parsing is correct`() {
-        connectMySite("/summary") {
+        connectMySite(router, "/summary") {
             assertThat(it.queries.getStringList("key"), equalTo(listOf("value1", "value2")))
             assertThat(it.queries.optStringList("key"), equalTo(listOf("value1", "value2")))
             assertThat(it.queries.getIntList("123"), equalTo(listOf(2341, 2342)))
@@ -139,21 +141,21 @@ class ResultParsingTest {
                 "?key=value1&key=value2&123=2341&123=2342&boolean=1&boolean=false&float=0.5" +
                 "&float=0.8&double=1.9&double=1.1&long=9000&long=9001" +
                 "&search%5Bkey%5D=https%3A%2F%2Fgithub.com%2Fmrhabibi&search%5Bkey%5D=celana%20hitam"
-        Neuro.proceed(url)
+        router.proceed(url)
     }
 
     @Test
     fun `fragment parsing is correct`() {
-        connectMySite("/bantuan") {
+        connectMySite(router, "/bantuan") {
             assertThat(it.fragment, equalTo("here"))
         }
-        Neuro.proceed("https://www.mysite.com/bantuan#here")
-        Neuro.proceed("https://www.mysite.com/bantuan?key=value#here")
+        router.proceed("https://www.mysite.com/bantuan#here")
+        router.proceed("https://www.mysite.com/bantuan?key=value#here")
     }
 
     @Test
     fun `incorrect query parsing handling is correct`() {
-        connectMySite("/terms") {
+        connectMySite(router, "/terms") {
             assertThat(it.queries.getLong("str"), equalTo(0L))
             assertThat(it.queries.getInt("str"), equalTo(0))
             assertThat(it.queries.getFloat("str"), equalTo(0.0F))
@@ -172,7 +174,7 @@ class ResultParsingTest {
             assertThat(it.queries.optFloatList("strlist"), equalTo(emptyList()))
             assertThat(it.queries.optDoubleList("strlist"), equalTo(emptyList()))
         }
-        Neuro.proceed("https://www.mysite.com/terms?str=value&strlist=value1&strlist=value2")
+        router.proceed("https://www.mysite.com/terms?str=value&strlist=value1&strlist=value2")
     }
 
     @Test
@@ -184,8 +186,8 @@ class ResultParsingTest {
     }
 
     companion object {
-        fun connectMySite(pattern: String, action: SignalAction = {}) {
-            Neuro.connect(MySiteSoma, AxonBranch(pattern, action))
+        fun connectMySite(router: Neuro, pattern: String, action: SignalAction = {}) {
+            router.connect(MySiteSoma, AxonBranch(pattern, action))
         }
     }
 }

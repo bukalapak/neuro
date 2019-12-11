@@ -14,121 +14,123 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NeuroRoutingTest {
 
+    private val router = Neuro()
+
     @Before
     fun init() {
-        Neuro.clearConnection()
-        Neuro.preprocessor = null
+        router.clearConnection()
+        router.preprocessor = null
     }
 
     @Test
     fun `literal routes are correct`() {
-        connectMySite("/about") {}
-        connectMySite("/transaction/view") {}
-        connectMySite("/booking/view/as_pdf") {}
+        connectMySite(router, "/about") {}
+        connectMySite(router, "/transaction/view") {}
+        connectMySite(router, "/booking/view/as_pdf") {}
 
         assertRouteMySite(
-            Neuro.findRoute("https://www.mysite.com/about"),
+            router.findRoute("https://www.mysite.com/about"),
             "/about"
         )
         assertRouteMySite(
-            Neuro.findRoute("https://www.mysite.com/transaction/view"),
+            router.findRoute("https://www.mysite.com/transaction/view"),
             "/transaction/view"
         )
         assertRouteMySite(
-            Neuro.findRoute("https://www.mysite.com/booking/view/as_pdf"),
+            router.findRoute("https://www.mysite.com/booking/view/as_pdf"),
             "/booking/view/as_pdf"
         )
     }
 
     @Test
     fun `anonymous routes are correct`() {
-        connectMySite("/product/<>") {}
-        connectMySite("/<>/detail") {}
-        connectMySite("/product/<>/edit") {}
+        connectMySite(router, "/product/<>") {}
+        connectMySite(router, "/<>/detail") {}
+        connectMySite(router, "/product/<>/edit") {}
 
         assertRouteMySite(
-            Neuro.findRoute("https://www.mysite.com/product/8w7yf7-this-is-a-product"),
+            router.findRoute("https://www.mysite.com/product/8w7yf7-this-is-a-product"),
             "/product/<>"
         )
         assertRouteMySite(
-            Neuro.findRoute("https://www.mysite.com/8732427348927394/detail"),
+            router.findRoute("https://www.mysite.com/8732427348927394/detail"),
             "/<>/detail"
         )
         assertRouteMySite(
-            Neuro.findRoute("https://www.mysite.com/product/98ur89_nice_product/edit"),
+            router.findRoute("https://www.mysite.com/product/98ur89_nice_product/edit"),
             "/product/<>/edit"
         )
     }
 
     @Test
     fun `unpatterned routes are correct`() {
-        connectMySite("/labels/<label_id>") {}
-        connectMySite("/<booking_id>/view") {}
-        connectMySite("/product/<id>/view") {}
+        connectMySite(router, "/labels/<label_id>") {}
+        connectMySite(router, "/<booking_id>/view") {}
+        connectMySite(router, "/product/<id>/view") {}
 
         assertRouteMySite(
-            Neuro.findRoute("https://www.mysite.com/labels/newset-hardware-ever-1234"),
+            router.findRoute("https://www.mysite.com/labels/newset-hardware-ever-1234"),
             "/labels/<label_id>"
         )
         assertRouteMySite(
-            Neuro.findRoute("https://www.mysite.com/aaa_bbb/view"),
+            router.findRoute("https://www.mysite.com/aaa_bbb/view"),
             "/<booking_id>/view"
         )
         assertRouteMySite(
-            Neuro.findRoute("https://www.mysite.com/product/this.is.dot/view"),
+            router.findRoute("https://www.mysite.com/product/this.is.dot/view"),
             "/product/<id>/view"
         )
     }
 
     @Test
     fun `case sensitive routes are correct`() {
-        connectMySite("/tHiSiSAlaY") {}
+        connectMySite(router, "/tHiSiSAlaY") {}
 
         assertRouteMySite(
-            Neuro.findRoute("https://www.mysite.com/tHiSiSAlaY"),
+            router.findRoute("https://www.mysite.com/tHiSiSAlaY"),
             "/tHiSiSAlaY"
         )
         assertRouteMySite(
-            Neuro.findRoute("https://www.MYSITE.com/tHiSiSAlaY"),
+            router.findRoute("https://www.MYSITE.com/tHiSiSAlaY"),
             "/tHiSiSAlaY"
         )
         assertRouteMySite(
-            Neuro.findRoute("hTTps://wWw.MYSiTE.cOm/tHiSiSAlaY"),
+            router.findRoute("hTTps://wWw.MYSiTE.cOm/tHiSiSAlaY"),
             "/tHiSiSAlaY"
         )
         assertRouteMySite(
-            Neuro.findRoute("https://www.mysite.com/thisisalay"),
+            router.findRoute("https://www.mysite.com/thisisalay"),
             Soma.EXPRESSION_OTHER_BRANCH // other
         )
     }
 
     @Test
     fun `slashed routes are correct`() {
-        connectMySite("/detail/") {}
-        connectMySite("/<>/blabla") {}
+        connectMySite(router, "/detail/") {}
+        connectMySite(router, "/<>/blabla") {}
 
         assertRouteMySite(
-            Neuro.findRoute("https://www.mysite.com/"),
+            router.findRoute("https://www.mysite.com/"),
             Soma.EXPRESSION_NO_BRANCH_WITH_SLASH
         )
         assertRouteMySite(
-            Neuro.findRoute("https://www.mysite.com/detail/"),
+            router.findRoute("https://www.mysite.com/detail/"),
             "/detail/"
         )
         assertRouteMySite(
-            Neuro.findRoute("https://www.mysite.com/detail/blabla"),
+            router.findRoute("https://www.mysite.com/detail/blabla"),
             "/<>/blabla"
         )
         assertRouteMySite(
-            Neuro.findRoute("https://www.mysite.com/detail"),
+            router.findRoute("https://www.mysite.com/detail"),
             Soma.EXPRESSION_OTHER_BRANCH
         )
         assertRouteMySite(
-            Neuro.findRoute("https://www.mysite.com/detail/blabla/"),
+            router.findRoute("https://www.mysite.com/detail/blabla/"),
             Soma.EXPRESSION_OTHER_BRANCH
         )
         assertRouteMySite(
-            Neuro.findRoute("https://www.mysite.com"),
+            router.findRoute("https://www.mysite.com"),
             Soma.EXPRESSION_NO_BRANCH
         )
     }
@@ -138,7 +140,7 @@ class NeuroRoutingTest {
         val urlNoSlash = "http://sites.com"
         val urlWithSlash = "http://sites.com/"
 
-        Neuro.connect(object : Soma("sites") {
+        router.connect(object : Soma("sites") {
 
             override val hosts = listOf(
                 "sites.com"
@@ -149,8 +151,8 @@ class NeuroRoutingTest {
             }
         }, listOf())
 
-        Neuro.proceed(urlNoSlash)
-        Neuro.proceed(urlWithSlash)
+        router.proceed(urlNoSlash)
+        router.proceed(urlWithSlash)
     }
 
     @Test
@@ -159,7 +161,7 @@ class NeuroRoutingTest {
         val urlOtherBranch = "http://myprecioussite.com/other"
         val urlDenied = "http://myprecioussite.com/denyme"
 
-        Neuro.connect(object : Soma("myprecioussite") {
+        router.connect(object : Soma("myprecioussite") {
 
             override val hosts = listOf(
                 "www.myprecioussite.com",
@@ -181,15 +183,15 @@ class NeuroRoutingTest {
             }
         }, listOf())
 
-        Neuro.proceed(urlNoBranch)
-        Neuro.proceed(urlOtherBranch)
-        Neuro.proceed(urlDenied)
+        router.proceed(urlNoBranch)
+        router.proceed(urlOtherBranch)
+        router.proceed(urlDenied)
     }
 
     @Test
     fun `SomaOnly is functional`() {
         val url = "https://myothersite.com:8089/profile/"
-        Neuro.connect(object : SomaOnly("myothersite") {
+        router.connect(object : SomaOnly("myothersite") {
 
             override val ports = listOf(8089)
 
@@ -202,26 +204,26 @@ class NeuroRoutingTest {
                 assertThat(signal.url, equalTo(url))
             }
         })
-        Neuro.proceed(url)
+        router.proceed(url)
     }
 
     @Test
     fun `SomaFallback can catch fallback`() {
         val url = "https://www.google.com"
-        Neuro.connect(object : SomaFallback() {
+        router.connect(object : SomaFallback() {
             override fun onSomaProcess(signal: Signal) {
                 assertThat(signal.url, equalTo(url))
             }
         })
-        Neuro.proceed(url)
+        router.proceed(url)
     }
 
     @Test
     fun `no route found`() {
         val url = "http://www.noroute.com"
-        val decision = Neuro.findRoute(url)
+        val decision = router.findRoute(url)
         assertThat(decision?.first, absent())
-        Neuro.proceed(url, decision)
+        router.proceed(url, decision)
     }
 
     @Test
@@ -229,10 +231,10 @@ class NeuroRoutingTest {
         val url = "https://watashi.com/profile"
         val newUrl = "https://www.intercepted.com"
         val newUri = Uri.parse(newUrl)
-        connectMySite("/profile") {
+        connectMySite(router, "/profile") {
             assertThat(it.url, equalTo(newUrl))
         }
-        Neuro.preprocessor = { processor, action, signal ->
+        router.preprocessor = { processor, action, signal ->
             val newSignal = Signal(
                 signal.context,
                 newUri,
@@ -244,7 +246,7 @@ class NeuroRoutingTest {
             )
             processor.invoke(action, newSignal)
         }
-        Neuro.proceed(url)
+        router.proceed(url)
     }
 
     @Test
@@ -254,7 +256,7 @@ class NeuroRoutingTest {
         val newUri = Uri.parse(newUrl)
         val context = InstrumentationRegistry.getInstrumentation().context
 
-        connectMySite("/profile") {
+        connectMySite(router, "/profile") {
             assertThat(it.url, equalTo(newUrl))
         }
         val processor: AxonProcessor = { action, signal ->
@@ -269,21 +271,21 @@ class NeuroRoutingTest {
             )
             action.invoke(newSignal)
         }
-        Neuro.proceed(url, context, processor)
+        router.proceed(url, context, processor)
 
-        val decision = Neuro.findRoute(url)
-        Neuro.proceed(url, decision, context, processor)
+        val decision = router.findRoute(url)
+        router.proceed(url, decision, context, processor)
     }
 
     @Test
     fun `opaque form parsed succesfully`() {
         val url = "mailto:habibi@bukalapak.com?Subject=Test"
-        Neuro.connect(object : SomaFallback() {
+        router.connect(object : SomaFallback() {
             override fun onSomaProcess(signal: Signal) {
                 assertThat(signal.url, equalTo(url))
             }
         })
-        Neuro.proceed(url)
+        router.proceed(url)
     }
 
     companion object {
@@ -292,8 +294,8 @@ class NeuroRoutingTest {
             assertThat(decision?.second?.expression, equalTo(expression))
         }
 
-        fun connectMySite(pattern: String, action: SignalAction = {}) {
-            Neuro.connect(MySiteSoma, AxonBranch(pattern, action))
+        fun connectMySite(router: Neuro, pattern: String, action: SignalAction = {}) {
+            router.connect(MySiteSoma, AxonBranch(pattern, action))
         }
     }
 }

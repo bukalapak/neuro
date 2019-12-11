@@ -11,21 +11,23 @@ The next generation of <a href="https://github.com/bukalapak/url-router">URL Rou
 You need this if you have only 1 domain to be processed:
 
 ```kotlin
-SimpleNeuro.setBase(Uri.parse("https://www.mywebsite.com"))
+val router = SimpleNeuro()
+
+router.setBase(Uri.parse("https://www.mywebsite.com"))
 
 // https://www.mywebsite.com/login
-SimpleNeuro.addPath("/login") {
+router.addPath("/login") {
    // goto login
 }
 
 // https://www.mywebsite.com/messages/1234
-SimpleNeuro.addPath("/messages/<message_id>") {
+router.addPath("/messages/<message_id>") {
    val messageId = it.variables.optString("message_id")
    // open message with id 1234
 }
 
 // https://www.mywebsite.com/promo?source=banner
-SimpleNeuro.addPath("/promo") {
+router.addPath("/promo") {
    val source = it.queries.optString("source")
    // open promo with source `banner`
 }
@@ -34,7 +36,7 @@ SimpleNeuro.addPath("/promo") {
 And use this to execute URL:
 
 ```kotlin
-SimpleNeuro.proceed(url)
+router.proceed(url)
 ```
 
 ## Advanced Routing
@@ -111,25 +113,27 @@ AxonBranch is used to filter path after being processed by Soma.
 Register all paths in your `MainActivity`, or even better in subclass of `Application`.
 
 ```kotlin
+val router = Neuro()
+
 override fun onCreate() {
 
-   Neuro.connect(MyWebsiteSoma, AxonBranch("/login") {
+   router.connect(MyWebsiteSoma, AxonBranch("/login") {
       // goto login
    })
    
-   Neuro.connect(MyWebsiteSoma, AxonBranch("/messages/<message_id>") {
+   router.connect(MyWebsiteSoma, AxonBranch("/messages/<message_id>") {
       val messageId = it.variables.optString("message_id")
       // open message with id 1234
    })
 
-   Neuro.connect(MyWebsiteSoma, AxonBranch("/promo") {
+   router.connect(MyWebsiteSoma, AxonBranch("/promo") {
       val source = it.queries.optString("source")
       // open promo with source `banner`
    })
    
    // for SomaOnly and SomaFallback
-   Neuro.connect(MyOtherWebsiteSoma)
-   Neuro.connect(OtherSoma)
+   router.connect(MyOtherWebsiteSoma)
+   router.connect(OtherSoma)
 
 }
 ```

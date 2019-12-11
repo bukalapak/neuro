@@ -15,7 +15,7 @@ ext {
     siteUrl = 'https://github.com/bukalapak/neuro'
     gitUrl = 'https://github.com/bukalapak/neuro.git'
 
-    libraryVersion = '2.1.0'
+    libraryVersion = '2.2.0'
 
     developerId = 'mrhabibi'
     developerName = 'Muhammad Rizky Habibi'
@@ -47,13 +47,13 @@ buildscript {
 }
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion "28.0.3"
+    compileSdkVersion 29
+    buildToolsVersion "29.0.2"
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 28
-        versionCode 20100
+        targetSdkVersion 29
+        versionCode 20200
         versionName "$libraryVersion"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"

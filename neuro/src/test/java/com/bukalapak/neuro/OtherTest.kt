@@ -4,27 +4,20 @@ import android.net.Uri
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import org.junit.Assert
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.IllegalArgumentException
 
 @RunWith(AndroidJUnit4::class)
 class OtherTest {
 
-    @Before
-    fun init() {
-        Neuro.clearConnection()
-    }
-
     @Test
     fun `simple neuro is fine`() {
-        SimpleNeuro.setBase(Uri.parse("https://domain.com"))
-        SimpleNeuro.addPath("/faq") {
+        val router = SimpleNeuro()
+        router.setBase(Uri.parse("https://domain.com"))
+        router.addPath("/faq") {
             assertThat(it.queries.getString("key"), equalTo("value"))
         }
-        SimpleNeuro.proceed("https://domain.com/faq?key=value")
+        router.proceed("https://domain.com/faq?key=value")
     }
 
     @Test
@@ -45,14 +38,10 @@ class OtherTest {
 
     @Test
     fun `neuro connection clearance`() {
-        Neuro.connect(MySiteSoma, listOf())
-        assertThat(Neuro.neurons.size, equalTo(1))
-        Neuro.clearConnection()
-        assertThat(Neuro.neurons.size, equalTo(0))
-    }
-
-    @Test
-    fun `is debug`() {
-        assertThat(BuildConfig.DEBUG, equalTo(true))
+        val router = Neuro()
+        router.connect(MySiteSoma, listOf())
+        assertThat(router.neurons.size, equalTo(1))
+        router.clearConnection()
+        assertThat(router.neurons.size, equalTo(0))
     }
 }

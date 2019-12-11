@@ -9,9 +9,7 @@ import java.util.concurrent.ConcurrentSkipListMap
 import java.util.concurrent.ConcurrentSkipListSet
 import java.util.regex.Pattern
 
-object Neuro {
-
-    internal const val TAG = "Neuro"
+class Neuro {
 
     internal val neurons = ConcurrentSkipListMap<Nucleus, AxonTerminal>()
     var preprocessor: AxonPreprocessor? = null
@@ -296,5 +294,9 @@ object Neuro {
 
     fun clearConnection() {
         neurons.clear()
+    }
+
+    companion object {
+        internal const val TAG = "Neuro"
     }
 }
