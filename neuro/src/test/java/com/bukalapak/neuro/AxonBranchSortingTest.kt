@@ -12,12 +12,12 @@ class AxonBranchSortingTest {
 
         val branch1 = AxonBranch("/help") {}
         val branch2 = AxonBranch("/faq") {}
-        val branch3 = AxonBranch("help", 99, "/help") {}
+        val branch3 = AxonBranch("help", "/help", 99) {}
         val branch4 = AxonBranch("/helpme") {}
         val branch5 = AxonBranch("/welp") {}
-        val branch6 = AxonBranch("belt", 100, "/belt") {}
+        val branch6 = AxonBranch("belt", "/belt") {}
         val branch7 = AxonBranch("/belt") {}
-        val branch8 = AxonBranch("bell", 100, "/belt") {}
+        val branch8 = AxonBranch("bell", "/belt") {}
 
         assert(branch1 < branch2)
         assert(branch1 > branch3)

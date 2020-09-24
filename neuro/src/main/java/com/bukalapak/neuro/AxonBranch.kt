@@ -1,22 +1,23 @@
 package com.bukalapak.neuro
 
-class AxonBranch(
+class AxonBranch private constructor(
+    private val id: String?,
+    private val priority: Int,
     val expression: String,
     val action: SignalAction
 ) : Comparable<AxonBranch> {
 
-    private var id: String? = null
-    private var priority: Int = DEFAULT_PRIORITY
+    constructor(
+        expression: String,
+        action: SignalAction
+    ) : this(null, DEFAULT_PRIORITY, expression, action)
 
     constructor(
         id: String,
-        priority: Int,
         expression: String,
+        priority: Int = DEFAULT_PRIORITY,
         action: SignalAction
-    ) : this(expression, action) {
-        this.id = id
-        this.priority = priority
-    }
+    ) : this(id, priority, expression, action)
 
     private val comparedPattern: String by lazy {
 

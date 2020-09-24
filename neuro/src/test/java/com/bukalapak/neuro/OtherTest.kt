@@ -50,7 +50,7 @@ class OtherTest {
         val branch1 = AxonBranch("/help") {}
         assertThat(branch1.toString(), equalTo("/help"))
 
-        val branch2 = AxonBranch("help", 100, "/help") {}
+        val branch2 = AxonBranch("help", "/help") {}
         assertThat(branch2.toString(), equalTo("/help (help)"))
     }
 }
