@@ -43,8 +43,10 @@ class NucleusSortingTest {
         assert(soma1 < soma2)
         assert(soma1 > soma3)
         assert(soma1 > soma4)
+
         assert(soma2 > soma3)
         assert(soma2 > soma4)
+
         assert(soma3 > soma4)
     }
 }

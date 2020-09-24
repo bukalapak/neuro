@@ -107,7 +107,7 @@ sealed class Nucleus(val id: String) : Comparable<Nucleus> {
     // empty means may be included or not
     open val ports: List<Int> = emptyList()
 
-    open val priority: Int = 100 // default priority, just random number between 0 and Int.MAX_VALUE
+    open val priority: Int = DEFAULT_PRIORITY
 
     class Chosen(
         val nucleus: Nucleus,
@@ -125,6 +125,10 @@ sealed class Nucleus(val id: String) : Comparable<Nucleus> {
     }
 
     final override fun hashCode(): Int = 31 * id.hashCode()
+
+    companion object {
+        const val DEFAULT_PRIORITY = 100
+    }
 }
 
 abstract class Soma(id: String) : Nucleus(id) {

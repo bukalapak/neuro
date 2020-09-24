@@ -44,4 +44,13 @@ class OtherTest {
         router.clearConnection()
         assertThat(router.neurons.size, equalTo(0))
     }
+
+    @Test
+    fun `axon branch toString()`() {
+        val branch1 = AxonBranch("/help") {}
+        assertThat(branch1.toString(), equalTo("/help"))
+
+        val branch2 = AxonBranch("help", 100, "/help") {}
+        assertThat(branch2.toString(), equalTo("/help (help)"))
+    }
 }
