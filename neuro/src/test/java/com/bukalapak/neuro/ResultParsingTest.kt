@@ -34,17 +34,15 @@ class ResultParsingTest {
     fun `context and args passing is correct`() {
         connectMySite(router, "/yes") {
             assertThat(it.context, absent())
-            assertThat(it.args?.getBoolean("passed"), equalTo(true))
+            assertThat(it.args?.get("passed") as Boolean, equalTo(true))
         }
-        router.proceed("https://www.mysite.com/yes", null, null, Bundle().apply {
-            putBoolean("passed", true)
-        })
+        router.proceed("https://www.mysite.com/yes", null, null, mapOf("passed" to true))
     }
 
     @Test
     fun `variable parsing is correct`() {
         connectMySite(router, "/product/<product_id>/<>/edit/<slug:[0-9]+>/<label:.+>-<>-<>") {
-            assertThat(it.variables.get("product_id"), equalTo(listOf("!@#Asd123")))
+            assertThat(it.variables["product_id"], equalTo(listOf("!@#Asd123")))
 
             assertThat(it.variables.getString("product_id"), equalTo("!@#Asd123"))
             assertThat(it.variables.optString("product_id"), equalTo("!@#Asd123"))
@@ -70,7 +68,7 @@ class ResultParsingTest {
     @Test
     fun `query parsing is correct`() {
         connectMySite(router, "/tnc") {
-            assertThat(it.queries.get("key"), equalTo(listOf("value")))
+            assertThat(it.queries["key"], equalTo(listOf("value")))
 
             assertThat(it.queries.getString("key"), equalTo("value"))
             assertThat(it.queries.optString("key"), equalTo("value"))
@@ -180,7 +178,7 @@ class ResultParsingTest {
     @Test
     fun `put data to wave`() {
         val wave = Wave().apply {
-            put("key", "value")
+            insertItem("key", "value")
         }
         assertThat(wave.getString("key"), equalTo("value"))
     }

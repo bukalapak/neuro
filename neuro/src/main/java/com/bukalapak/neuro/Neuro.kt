@@ -2,9 +2,8 @@ package com.bukalapak.neuro
 
 import android.content.Context
 import android.net.Uri
-import android.os.Bundle
 import android.util.Log
-import java.util.Locale
+import java.util.*
 import java.util.concurrent.ConcurrentSkipListMap
 import java.util.concurrent.ConcurrentSkipListSet
 import java.util.regex.Pattern
@@ -13,7 +12,7 @@ class Neuro {
 
     internal val neurons = ConcurrentSkipListMap<Nucleus, AxonTerminal>()
     var preprocessor: AxonPreprocessor? = null
-    var logger: Logger? = Logger.DEFAULT
+    private var logger: Logger? = Logger.DEFAULT
 
     // this comparator used to priority sorting for the terminal index based on path count
     // from: -2, -1, -3, 5, 4, 1, -4, 3, 2, -5
@@ -86,7 +85,7 @@ class Neuro {
         decision: RouteDecision?,
         context: Context? = null,
         axonProcessor: AxonProcessor? = null,
-        args: Bundle = Bundle()
+        args: Map<String, Any?> = emptyMap(),
     ) {
         proceedInternal(url, decision, context, axonProcessor, args)
     }
@@ -96,7 +95,7 @@ class Neuro {
         url: String,
         context: Context? = null,
         axonProcessor: AxonProcessor? = null,
-        args: Bundle = Bundle()
+        args: Map<String, Any?> = emptyMap(),
     ) {
         proceedInternal(url, findRoute(url), context, axonProcessor, args)
     }
@@ -106,7 +105,7 @@ class Neuro {
         decision: RouteDecision?,
         context: Context? = null,
         axonProcessor: AxonProcessor? = null,
-        args: Bundle = Bundle()
+        args: Map<String, Any?> = emptyMap(),
     ) {
         logger?.onRoutingUrl(url)
 
@@ -166,7 +165,7 @@ class Neuro {
         val path = uri.path
 
         // find matched nucleus
-        val chosenNucleus = neurons.keys.asSequence().find {
+        val chosenNucleus = neurons.keys.find {
             it.isMatch(scheme, host, port)
         }?.nominate(scheme, host, port) ?: return null
 
@@ -221,8 +220,8 @@ class Neuro {
 
         return if (uri.isOpaque) uri else { // if like mailto:aaa@bbb.com
             uri.buildUpon()
-                .scheme(uri.scheme?.toLowerCase(Locale.ROOT))
-                .encodedAuthority(uri.encodedAuthority?.toLowerCase(Locale.ROOT))
+                .scheme(uri.scheme?.lowercase(Locale.ROOT))
+                .encodedAuthority(uri.encodedAuthority?.lowercase(Locale.ROOT))
                 .encodedPath(encodedPath)
                 .build()
         }
@@ -235,13 +234,13 @@ class Neuro {
         context: Context?,
         branch: AxonBranch?,
         uri: Uri,
-        args: Bundle
+        args: Map<String, Any?>
     ): Signal? {
 
         // build the final expression, if null, means that its optional, might be written or not
         val expression = StringBuilder().apply {
             append(chosenNucleus.scheme?.let { "$it://" } ?: "(?:[^:]*://)?".adaptWithLiteral())
-            append(chosenNucleus.host?.let { it } ?: "(?:[^/|:]+)?".adaptWithLiteral())
+            append(chosenNucleus.host ?: "(?:[^/|:]+)?".adaptWithLiteral())
             append(chosenNucleus.port?.let { ":$it" } ?: "(?::[^/]*)?".adaptWithLiteral())
             append(branch?.expression ?: "(?:/.*)?".adaptWithLiteral())
         }.toString()
@@ -260,7 +259,7 @@ class Neuro {
 
         // collect variable names from expression
         while (variableMatcher.find()) {
-            variableNames.add(variableMatcher.group(1))
+            variableMatcher.group(1)?.let { variableNames.add(it) }
         }
 
         // collect the variables
@@ -272,7 +271,7 @@ class Neuro {
         val variables = OptWave()
         variableNames.forEachIndexed { index, name ->
             val value = matcher.group(index + 1)
-            variables.put(name, value)
+            if (value != null) variables.insertItem(name, value)
         }
 
         // collect the fragment

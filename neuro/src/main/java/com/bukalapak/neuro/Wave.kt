@@ -3,12 +3,8 @@ package com.bukalapak.neuro
 import java.util.*
 
 open class Wave : HashMap<String, List<String>>() {
-
-    @Deprecated("Don't use default's for preventing null value", ReplaceWith("super.get(key)", "java.util.HashMap"))
-    override fun get(key: String): List<String>? = super.get(key)
-
-    fun put(key: String, value: String): List<String>? {
-        return super.put(key, Arrays.asList(value))
+    fun insertItem(key: String, value: String): List<String>? {
+        return super.put(key, listOf(value))
     }
 
     fun getString(key: String): String? = if (containsKey(key)) {
@@ -109,7 +105,7 @@ open class Waves : OptWave() {
         try {
             super.get(key)?.map { it.toLong() }
         } catch (ex: Exception) {
-            emptyList<Long>()
+            emptyList()
         }
     } else null
 
@@ -117,7 +113,7 @@ open class Waves : OptWave() {
         try {
             super.get(key)?.map { it.toInt() }
         } catch (ex: Exception) {
-            emptyList<Int>()
+            emptyList()
         }
     } else null
 
@@ -125,7 +121,7 @@ open class Waves : OptWave() {
         try {
             super.get(key)?.map { it.toFloat() }
         } catch (ex: Exception) {
-            emptyList<Float>()
+            emptyList()
         }
     } else null
 
@@ -133,7 +129,7 @@ open class Waves : OptWave() {
         try {
             super.get(key)?.map { it.toDouble() }
         } catch (ex: Exception) {
-            emptyList<Double>()
+            emptyList()
         }
     } else null
 
@@ -153,7 +149,7 @@ class OptWaves : Waves() {
         try {
             super.get(key)?.map { it.toLong() } ?: emptyList()
         } catch (ex: Exception) {
-            emptyList<Long>()
+            emptyList()
         }
     } else emptyList()
 
@@ -161,7 +157,7 @@ class OptWaves : Waves() {
         try {
             super.get(key)?.map { it.toInt() } ?: emptyList()
         } catch (ex: Exception) {
-            emptyList<Int>()
+            emptyList()
         }
     } else emptyList()
 
@@ -169,7 +165,7 @@ class OptWaves : Waves() {
         try {
             super.get(key)?.map { it.toFloat() } ?: emptyList()
         } catch (ex: Exception) {
-            emptyList<Float>()
+            emptyList()
         }
     } else emptyList()
 
@@ -177,7 +173,7 @@ class OptWaves : Waves() {
         try {
             super.get(key)?.map { it.toDouble() } ?: emptyList()
         } catch (ex: Exception) {
-            emptyList<Double>()
+            emptyList()
         }
     } else emptyList()
 

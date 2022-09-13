@@ -7,7 +7,7 @@ sealed class Nucleus(val id: String) : Comparable<Nucleus> {
     // pattern to expression, sort descending from the longest pattern
     private val schemePatterns: List<Pair<Regex, String>> by lazy {
         schemes.map {
-            val lowerCase = it.toLowerCase(Locale.ROOT) // make it lowercase
+            val lowerCase = it.lowercase(Locale.ROOT) // make it lowercase
             lowerCase.toPattern() to lowerCase
         }.sortedByDescending { it.first }.map { Regex(it.first) to it.second }
     }
@@ -15,12 +15,12 @@ sealed class Nucleus(val id: String) : Comparable<Nucleus> {
     // pattern to expression, sort descending from the longest pattern
     private val hostPatterns: List<Pair<Regex, String>> by lazy {
         hosts.map {
-            val lowerCase = it.toLowerCase(Locale.ROOT) // make it lowercase
+            val lowerCase = it.lowercase(Locale.ROOT) // make it lowercase
             lowerCase.toPattern() to lowerCase
         }.sortedByDescending { it.first }.map { Regex(it.first) to it.second }
     }
 
-    // only return boolen
+    // only return boolean
     internal fun isMatch(
         scheme: String?,
         host: String?,
@@ -49,7 +49,7 @@ sealed class Nucleus(val id: String) : Comparable<Nucleus> {
         scheme: String?,
         host: String?,
         port: Int
-    ): Chosen? {
+    ): Chosen {
 
         val chosenHost = if (hostPatterns.isEmpty()) null
         else hostPatterns.find {
@@ -67,7 +67,7 @@ sealed class Nucleus(val id: String) : Comparable<Nucleus> {
         return Chosen(this, chosenScheme, chosenHost, chosenPort)
     }
 
-    internal val memberCount: Int by lazy {
+    private val memberCount: Int by lazy {
         val schemeSize = if (schemes.isEmpty()) 1 else schemes.size
         val hostSize = if (hosts.isEmpty()) 1 else hosts.size
         val portSize = if (ports.isEmpty()) 1 else ports.size
